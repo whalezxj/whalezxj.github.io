@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Springboot定时器 | 裸泳的鲸の博客</title><meta name="description" content="Springboot定时器  @Scheduled  步骤：  启动类添加 @EnableScheduling 在定时任务上添加@Scheduled注解 （注解上可以填写cron表达式）  cron表达式    序号 说明 是否必填 允许填写的值 允许的通配符    1 秒 是 0-59 - * &#x2F;   2 分 是 0-59 - * &#x2F;   3 时 是 0-23 - * &#x2F;   4 日 是 1-3"><meta name="keywords" content="springboot,定时器"><meta name="author" content="裸泳的鲸"><meta name="copyright" content="裸泳的鲸"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/touxiang.ico"><link rel="canonical" href="https://whalezxj.github.io/2020/11/24/@Scheduled%E5%92%8CQuartz%E5%AE%9A%E6%97%B6%E5%99%A8/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="Springboot定时器"><meta property="og:url" content="https://whalezxj.github.io/2020/11/24/@Scheduled%E5%92%8CQuartz%E5%AE%9A%E6%97%B6%E5%99%A8/"><meta property="og:site_name" content="裸泳的鲸の博客"><meta property="og:description" content="Springboot定时器  @Scheduled  步骤：  启动类添加 @EnableScheduling 在定时任务上添加@Scheduled注解 （注解上可以填写cron表达式）  cron表达式    序号 说明 是否必填 允许填写的值 允许的通配符    1 秒 是 0-59 - * &#x2F;   2 分 是 0-59 - * &#x2F;   3 时 是 0-23 - * &#x2F;   4 日 是 1-3"><meta property="og:image" content="https://whalezxj.github.io/img/cover/bg018.jpg"><meta property="article:published_time" content="2020-11-23T16:00:00.000Z"><meta property="article:modified_time" content="2020-12-05T09:43:45.984Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="prev" title="EasyExcel导出" href="https://whalezxj.github.io/2020/12/05/EasyExcel/"><link rel="next" title="Linux" href="https://whalezxj.github.io/2020/11/21/Linux/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.10.5/dist/instantsearch.min.css"><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.10.5/dist/instantsearch.min.js" defer></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"UBWSK687I2","apiKey":"d717f84253b93e7df849914ef62d69f9","indexName":"hexosearch","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容:${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: {"limitDay":500,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: 裸泳的鲸","link":"链接: ","source":"来源: 裸泳的鲸の博客","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#A2B5CD","bgDark":"#121212","position":"top-center"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-12-05 17:43:45'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/buffifly/css/VolantisTags.css"><link rel="stylesheet" href="/buffifly/css/volantis.css"><link rel="stylesheet" href="/buffifly/css/fontAnimation.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/touxiang.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">26</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">25</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">18</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Springboot定时器"><span class="toc-number">1.</span> <span class="toc-text">Springboot定时器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Scheduled"><span class="toc-number">1.1.</span> <span class="toc-text">@Scheduled</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Quartz"><span class="toc-number">1.2.</span> <span class="toc-text">Quartz</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div id="web_bg" data-type="photo"></div><header class="post-bg" id="page-header" style="background-image: url(/img/cover/bg018.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">裸泳的鲸の博客</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Springboot定时器</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-11-24 00:00:00"><i class="far fa-calendar-alt fa-fw"></i> 发表于 2020-11-24</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-12-05 17:43:45"><i class="fas fa-history fa-fw"></i> 更新于 2020-12-05</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/%E5%AE%9A%E6%97%B6%E5%99%A8/">定时器</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">1.3k</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 4 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><a href="/2020/11/24/@Scheduled%E5%92%8CQuartz%E5%AE%9A%E6%97%B6%E5%99%A8/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count comment-count" data-xid="/2020/11/24/@Scheduled%E5%92%8CQuartz%E5%AE%9A%E6%97%B6%E5%99%A8/" itemprop="commentCount"></span></a></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Springboot定时器"><a href="#Springboot定时器" class="headerlink" title="Springboot定时器"></a>Springboot定时器</h1><hr>
+<ul>
+<li><h2 id="Scheduled"><a href="#Scheduled" class="headerlink" title="@Scheduled"></a>@Scheduled</h2></li>
+</ul>
+<p>步骤：</p>
+<ol>
+<li>启动类添加 <strong>@EnableScheduling</strong></li>
+<li>在定时任务上添加<strong>@Scheduled</strong>注解 （注解上可以填写cron表达式）</li>
+</ol>
+<p>cron表达式</p>
+<table>
+<thead>
+<tr>
+<th align="left">序号</th>
+<th align="left">说明</th>
+<th align="left">是否必填</th>
+<th align="left">允许填写的值</th>
+<th align="left">允许的通配符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">秒</td>
+<td align="left">是</td>
+<td align="left">0-59</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">分</td>
+<td align="left">是</td>
+<td align="left">0-59</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">时</td>
+<td align="left">是</td>
+<td align="left">0-23</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">日</td>
+<td align="left">是</td>
+<td align="left">1-31</td>
+<td align="left">- * ? / L W</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">月</td>
+<td align="left">是</td>
+<td align="left">1-12 or JAN-DEC</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">周</td>
+<td align="left">是</td>
+<td align="left">1-7 or SUN-SAT</td>
+<td align="left">- * ? / L #</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">年</td>
+<td align="left">否</td>
+<td align="left">1970-2099</td>
+<td align="left">- * /</td>
+</tr>
+</tbody></table>
+<p><strong>这一块需要大家注意的是，月份中的日期和星期可能会起冲突，因此在配置时这两个得有一个是 <code>?</code></strong></p>
+<p><strong>通配符含义：</strong></p>
+<ul>
+<li><p><code>?</code> 表示不指定值，即不关心某个字段的取值时使用。需要注意的是，月份中的日期和星期可能会起冲突，因此在配置时这两个得有一个是 <code>?</code></p>
+</li>
+<li><p><code>*</code> 表示所有值，例如:在秒的字段上设置 <code>*</code>,表示每一秒都会触发</p>
+</li>
+<li><p><code>,</code> 用来分开多个值，例如在周字段上设置 “MON,WED,FRI” 表示周一，周三和周五触发</p>
+</li>
+<li><p><code>-</code> 表示区间，例如在秒上设置 “10-12”,表示 10,11,12秒都会触发</p>
+</li>
+<li><p><code>/</code> 用于递增触发，如在秒上面设置”5/15” 表示从5秒开始，每增15秒触发(5,20,35,50)</p>
+</li>
+<li><p><code>#</code> 序号(表示每月的第几个周几)，例如在周字段上设置”6#3”表示在每月的第三个周六，(用 在母亲节和父亲节再合适不过了)</p>
+</li>
+<li><p>周字段的设置，若使用英文字母是不区分大小写的 ，即 MON 与mon相同</p>
+</li>
+<li><p><code>L</code> 表示最后的意思。在日字段设置上，表示当月的最后一天(依据当前月份，如果是二月还会自动判断是否是润年), 在周字段上表示星期六，相当于”7”或”SAT”（注意周日算是第一天）。如果在”L”前加上数字，则表示该数据的最后一个。例如在周字段上设置”6L”这样的格式,则表示”本月最后一个星期五”</p>
+</li>
+<li><p><code>W</code> 表示离指定日期的最近工作日(周一至周五)，例如在日字段上设置”15W”，表示离每月15号最近的那个工作日触发。如果15号正好是周六，则找最近的周五(14号)触发, 如果15号是周未，则找最近的下周一(16号)触发，如果15号正好在工作日(周一至周五)，则就在该天触发。如果指定格式为 “1W”,它则表示每月1号往后最近的工作日触发。如果1号正是周六，则将在3号下周一触发。(注，”W”前只能设置具体的数字,不允许区间”-“)</p>
+</li>
+<li><p><code>L</code> 和 <code>W</code> 可以一组合使用。如果在日字段上设置”LW”,则表示在本月的最后一个工作日触发(一般指发工资 )</p>
+<hr>
+<ul>
+<li><h2 id="Quartz"><a href="#Quartz" class="headerlink" title="Quartz"></a>Quartz</h2></li>
+</ul>
+</li>
+</ul>
+<p>在 Spring Boot 中使用 Quartz ，只需要在创建项目时，添加 Quartz 依赖即可：</p>
+<p><img src= "/img/loading.gif" data-src="https://www.javaboy.org/images/boot/6-1.png" alt="img"></p>
+<p>步骤：</p>
+<ol>
+<li><p>启动类添加 <strong>@EnableScheduling</strong></p>
+</li>
+<li><p>创建JobDetail（要做的事）</p>
+<ul>
+<li><p>先定义Job （实体类，有两种方式实现）</p>
+<ul>
+<li><p>第一种方式，直接定义一个Bean：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class MyJob1 &#123;</span><br><span class="line">    public void sayHello() &#123;</span><br><span class="line">        System.out.println(&quot;MyJob1&gt;&gt;&gt;&quot;+new Date());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关于这种定义方式说两点：</p>
+<ol>
+<li>首先将这个 Job 注册到 Spring 容器中。</li>
+<li>这种定义方式有一个缺陷，就是无法传参。</li>
+</ol>
+</li>
+<li><p>第二种定义方式，则是继承 QuartzJobBean 并实现默认的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class MyJob2 extends QuartzJobBean &#123;</span><br><span class="line">    HelloService helloService;</span><br><span class="line">    public HelloService getHelloService() &#123;</span><br><span class="line">        return helloService;</span><br><span class="line">    &#125;</span><br><span class="line">    public void setHelloService(HelloService helloService) &#123;</span><br><span class="line">        this.helloService &#x3D; helloService;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException &#123;</span><br><span class="line">        helloService.sayHello();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class HelloService &#123;</span><br><span class="line">    public void sayHello() &#123;</span><br><span class="line">        System.out.println(&quot;hello service &gt;&gt;&gt;&quot;+new Date());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p><strong>和第1种方式相比，这种方式支持传参，任务启动时，executeInternal 方法将会被执行。</strong></p>
+</li>
+</ul>
+</li>
+<li><p>Trigger 触发器（什么时候做）</p>
+<p>Job 有了之后，接下来创建类，配置 JobDetail 和 Trigger 触发器，如下：</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">public class QuartzConfig &#123;</span><br><span class="line">    @Bean</span><br><span class="line">    MethodInvokingJobDetailFactoryBean methodInvokingJobDetailFactoryBean() &#123;</span><br><span class="line">        MethodInvokingJobDetailFactoryBean bean &#x3D; new MethodInvokingJobDetailFactoryBean();</span><br><span class="line">        bean.setTargetBeanName(&quot;myJob1&quot;);</span><br><span class="line">        bean.setTargetMethod(&quot;sayHello&quot;);</span><br><span class="line">        return bean;</span><br><span class="line">    &#125;</span><br><span class="line">    @Bean</span><br><span class="line">    JobDetailFactoryBean jobDetailFactoryBean() &#123;</span><br><span class="line">        JobDetailFactoryBean bean &#x3D; new JobDetailFactoryBean();</span><br><span class="line">        bean.setJobClass(MyJob2.class);</span><br><span class="line">        JobDataMap map &#x3D; new JobDataMap();</span><br><span class="line">        map.put(&quot;helloService&quot;, helloService());</span><br><span class="line">        bean.setJobDataMap(map);</span><br><span class="line">        return bean;</span><br><span class="line">    &#125;</span><br><span class="line">    @Bean</span><br><span class="line">    SimpleTriggerFactoryBean simpleTriggerFactoryBean() &#123;</span><br><span class="line">        SimpleTriggerFactoryBean bean &#x3D; new SimpleTriggerFactoryBean();</span><br><span class="line">        bean.setStartTime(new Date());</span><br><span class="line">        bean.setRepeatCount(5);</span><br><span class="line">        bean.setJobDetail(methodInvokingJobDetailFactoryBean().getObject());</span><br><span class="line">        bean.setRepeatInterval(3000);</span><br><span class="line">        return bean;</span><br><span class="line">    &#125;</span><br><span class="line">    @Bean</span><br><span class="line">    CronTriggerFactoryBean cronTrigger() &#123;</span><br><span class="line">        CronTriggerFactoryBean bean &#x3D; new CronTriggerFactoryBean();</span><br><span class="line">        bean.setCronExpression(&quot;0&#x2F;10 * * * * ?&quot;);</span><br><span class="line">        bean.setJobDetail(jobDetailFactoryBean().getObject());</span><br><span class="line">        return bean;</span><br><span class="line">    &#125;</span><br><span class="line">    @Bean</span><br><span class="line">    SchedulerFactoryBean schedulerFactoryBean() &#123;</span><br><span class="line">        SchedulerFactoryBean bean &#x3D; new SchedulerFactoryBean();</span><br><span class="line">        bean.setTriggers(cronTrigger().getObject(), simpleTriggerFactoryBean().getObject());</span><br><span class="line">        return bean;</span><br><span class="line">    &#125;</span><br><span class="line">    @Bean</span><br><span class="line">    HelloService helloService() &#123;</span><br><span class="line">        return new HelloService();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于这个配置说如下几点：</p>
+<ol>
+<li>JobDetail 的配置有两种方式：MethodInvokingJobDetailFactoryBean 和 JobDetailFactoryBean 。</li>
+<li>使用 MethodInvokingJobDetailFactoryBean 可以配置目标 Bean 的名字和目标方法的名字，这种方式不支持传参。</li>
+<li>使用 JobDetailFactoryBean 可以配置 JobDetail ，任务类继承自 QuartzJobBean ，这种方式支持传参，将参数封装在 JobDataMap 中进行传递。</li>
+<li>Trigger 是指触发器，Quartz 中定义了多个触发器，这里向大家展示其中两种的用法，SimpleTrigger 和 CronTrigger 。</li>
+<li>SimpleTrigger 有点类似于前面说的 @Scheduled 的基本用法。</li>
+<li>CronTrigger 则有点类似于 @Scheduled 中 cron 表达式的用法。</li>
+</ol>
+<p><img src= "/img/loading.gif" data-src="https://www.javaboy.org/images/boot/6-2.png" alt="img"></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">裸泳的鲸</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://whalezxj.github.io/2020/11/24/@Scheduled%E5%92%8CQuartz%E5%AE%9A%E6%97%B6%E5%99%A8/">https://whalezxj.github.io/2020/11/24/@Scheduled%E5%92%8CQuartz%E5%AE%9A%E6%97%B6%E5%99%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://whalezxj.github.io" target="_blank">裸泳的鲸の博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/springboot/">springboot</a><a class="post-meta__tags" href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/">定时器</a></div><div class="post_share"><div class="social-share" data-image="/img/cover/bg004.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/12/05/EasyExcel/"><img class="prev-cover" data-src="/img/cover/kobe_bean_bryant-001.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">EasyExcel导出</div></div></a></div><div class="next-post pull-right"><a href="/2020/11/21/Linux/"><img class="next-cover" data-src="/img/cover/bg017.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2021/01/22/XXL-JOB的使用/" title="XXL-JOB分布式任务调度"><img class="relatedPosts_cover" data-src="/img/cover/bg006.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-22</div><div class="relatedPosts_title">XXL-JOB分布式任务调度</div></div></a></div><div class="relatedPosts_item"><a href="/2020/12/05/EasyExcel/" title="EasyExcel导出"><img class="relatedPosts_cover" data-src="/img/cover/kobe_bean_bryant-001.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-05</div><div class="relatedPosts_title">EasyExcel导出</div></div></a></div><div class="relatedPosts_item"><a href="/2020/10/28/ShiroDemo/" title="SpringBoot整合Shiro"><img class="relatedPosts_cover" data-src="/img/cover/bg015.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-28</div><div class="relatedPosts_title">SpringBoot整合Shiro</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/12/SwaggerConfig/" title="SpringBoot整合swagger"><img class="relatedPosts_cover" data-src="/img/cover/bg007.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-12</div><div class="relatedPosts_title">SpringBoot整合swagger</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/12/Thymeleaf/" title="SpringBoot整合Thymeleaf"><img class="relatedPosts_cover" data-src="/img/cover/bg014.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-12</div><div class="relatedPosts_title">SpringBoot整合Thymeleaf</div></div></a></div><div class="relatedPosts_item"><a href="/2020/11/13/jxls-springboot实现导出Excel报表/" title="Jxls导出"><img class="relatedPosts_cover" data-src="/img/cover/bg005.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-11-13</div><div class="relatedPosts_title">Jxls导出</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div class="comments-items-1" data-name="Valine"><div class="vcomment" id="vcomment"></div><script>function loadvaline () {  
+  var requestSetting = function (from,set) {
+    var from = from
+    var setting = set.split(',').filter(function(item){
+    return from.indexOf(item) > -1
+    });
+    setting = setting.length == 0 ? from :setting;
+    return setting
+  }
+
+  var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+  var requiredFields = requestSetting(['nick','mail'],'nick,mail')
+
+  function initValine () {
+    window.valine = new Valine({
+      el:'#vcomment',
+      appId: 'uVX1RdW5NvC6zEnfjERU7mAb-gzGzoHsz',
+      appKey: 'DzzpF7cokBfNP107e5OjMKtQ',
+      placeholder: '请留下你的姓名',
+      avatar: 'monsterid',
+      meta: guestInfo,
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: true,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: true,
+      requiredFields: requiredFields
+    });
+  }
+  loadScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || false) {
+  window.addEventListener('load', loadvaline)
+}
+else {
+  function loadOtherComment () {
+    loadvaline()
+  }
+}</script></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 裸泳的鲸</div><div class="footer_custom_text">潮水退去,裸泳的鲸</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="algolia-search"><div class="search-dialog__title" id="algolia-search-title">Algolia</div><div id="algolia-input-panel"><div id="algolia-search-input"></div></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-stats"></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/third-party/click_heart.js"></script><script src="https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {
+  pangu.autoSpacingPage()
+})</script><script src="/js/search/algolia.js"></script><script src="/buffifly/js/VolantisTags.js"></script><script src="/buffifly/js/volantis.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL面试题 | 裸泳的鲸の博客</title><meta name="description" content="面试题1、SQL语句执行流程MySQL大体上可分为Server层和存储引擎层两部分。 Server层： 连接器：TCP握手后服务器来验证登陆用户身份，A用户创建连接后，管理员对A用户权限修改了也不会影响到已经创建的链接权限，必须重新登陆。 查询缓存：查询后的结果存储位置，MySQL8.0版本以后已经取消，因为查询缓存失效太频繁，得不偿失。 分析器：根据语法规则，判断你输入的这个SQL语句是否满足M"><meta name="keywords" content="springboot,mysql,面试题"><meta name="author" content="裸泳的鲸"><meta name="copyright" content="裸泳的鲸"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/touxiang.ico"><link rel="canonical" href="https://whalezxj.github.io/2020/12/21/mysql%E9%9D%A2%E8%AF%95%E9%A2%98/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="MySQL面试题"><meta property="og:url" content="https://whalezxj.github.io/2020/12/21/mysql%E9%9D%A2%E8%AF%95%E9%A2%98/"><meta property="og:site_name" content="裸泳的鲸の博客"><meta property="og:description" content="面试题1、SQL语句执行流程MySQL大体上可分为Server层和存储引擎层两部分。 Server层： 连接器：TCP握手后服务器来验证登陆用户身份，A用户创建连接后，管理员对A用户权限修改了也不会影响到已经创建的链接权限，必须重新登陆。 查询缓存：查询后的结果存储位置，MySQL8.0版本以后已经取消，因为查询缓存失效太频繁，得不偿失。 分析器：根据语法规则，判断你输入的这个SQL语句是否满足M"><meta property="og:image" content="https://whalezxj.github.io/img/cover/bg006.jpg"><meta property="article:published_time" content="2020-12-20T16:00:00.000Z"><meta property="article:modified_time" content="2021-04-23T07:58:46.771Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="prev" title="BigDecimal相加的坑" href="https://whalezxj.github.io/2021/01/18/BigDecimal%E7%9B%B8%E5%8A%A0%E7%9A%84%E5%9D%91/"><link rel="next" title="jdk动态代理" href="https://whalezxj.github.io/2020/12/19/jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.10.5/dist/instantsearch.min.css"><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.10.5/dist/instantsearch.min.js" defer></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"UBWSK687I2","apiKey":"d717f84253b93e7df849914ef62d69f9","indexName":"hexosearch","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容:${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: {"limitDay":500,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: 裸泳的鲸","link":"链接: ","source":"来源: 裸泳的鲸の博客","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#A2B5CD","bgDark":"#121212","position":"top-center"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-04-23 15:58:46'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/buffifly/css/VolantisTags.css"><link rel="stylesheet" href="/buffifly/css/volantis.css"><link rel="stylesheet" href="/buffifly/css/fontAnimation.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/touxiang.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">26</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">25</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">18</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#面试题"><span class="toc-number">1.</span> <span class="toc-text">面试题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、SQL语句执行流程"><span class="toc-number">1.0.1.</span> <span class="toc-text">1、SQL语句执行流程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Server层："><span class="toc-number">1.0.1.0.1.</span> <span class="toc-text">Server层：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#存储引擎层"><span class="toc-number">1.0.1.0.2.</span> <span class="toc-text">存储引擎层</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SQL执行顺序"><span class="toc-number">1.0.1.0.3.</span> <span class="toc-text">SQL执行顺序</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、BinLog、RedoLog、UndoLog"><span class="toc-number">1.0.2.</span> <span class="toc-text">2、BinLog、RedoLog、UndoLog</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#BinLog"><span class="toc-number">1.0.2.0.1.</span> <span class="toc-text">BinLog</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#RedoLog"><span class="toc-number">1.0.2.0.2.</span> <span class="toc-text">RedoLog</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#UndoLog"><span class="toc-number">1.0.2.0.3.</span> <span class="toc-text">UndoLog</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div></div></div><div id="body-wrap"><div id="web_bg" data-type="photo"></div><header class="post-bg" id="page-header" style="background-image: url(/img/cover/bg006.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">裸泳的鲸の博客</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">MySQL面试题</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-12-21 00:00:00"><i class="far fa-calendar-alt fa-fw"></i> 发表于 2020-12-21</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2021-04-23 15:58:46"><i class="fas fa-history fa-fw"></i> 更新于 2021-04-23</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">2.2k</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 6 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><a href="/2020/12/21/mysql%E9%9D%A2%E8%AF%95%E9%A2%98/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count comment-count" data-xid="/2020/12/21/mysql%E9%9D%A2%E8%AF%95%E9%A2%98/" itemprop="commentCount"></span></a></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="面试题"><a href="#面试题" class="headerlink" title="面试题"></a>面试题</h1><h3 id="1、SQL语句执行流程"><a href="#1、SQL语句执行流程" class="headerlink" title="1、SQL语句执行流程"></a>1、SQL语句执行流程</h3><p>MySQL大体上可分为<code>Server层</code>和<code>存储引擎层</code>两部分。</p>
+<h5 id="Server层："><a href="#Server层：" class="headerlink" title="Server层："></a>Server层：</h5><ul>
+<li><code>连接器</code>：TCP握手后服务器来验证登陆用户身份，A用户创建连接后，管理员对A用户权限修改了也不会影响到已经创建的链接权限，必须重新登陆。</li>
+<li><code>查询缓存</code>：查询后的结果存储位置，MySQL8.0版本以后已经取消，因为查询缓存失效太频繁，得不偿失。</li>
+<li><code>分析器</code>：根据语法规则，判断你输入的这个SQL语句是否满足MySQL语法。</li>
+<li><code>优化器</code>：多种执行策略可实现目标，系统自动选择最优进行执行。</li>
+<li><code>执行器</code>：判断是否有权限，将最终任务提交到存储引擎。</li>
+</ul>
+<h5 id="存储引擎层"><a href="#存储引擎层" class="headerlink" title="存储引擎层"></a>存储引擎层</h5><p>负责数据的存储和提取。其架构模式是<code>插件式</code>的，支持<code>InnoDB</code>、<code>MyISAM</code>、<code>Memory</code>等多个存储引擎。现在最常用的存储引擎是<code>InnoDB</code>，它从MySQL 5.5.5版本开始成为了默认存储引擎(经常用的也是这个)。</p>
+<p><img src= "/img/loading.gif" data-src="https://z3.ax1x.com/2021/04/23/cXnlxH.png" alt="图片"></p>
+<h5 id="SQL执行顺序"><a href="#SQL执行顺序" class="headerlink" title="SQL执行顺序"></a>SQL执行顺序</h5><p><img src= "/img/loading.gif" data-src="https://mmbiz.qpic.cn/mmbiz_png/wJvXicD0z2dUQrRBUyxETV2RgzXuPqjscvL02EdeR3b0PK0icwria3VTqC15hyics1iaicuuz2KKUlVCZm4tDbRX1JtA/640" alt="图片"></p>
+<h3 id="2、BinLog、RedoLog、UndoLog"><a href="#2、BinLog、RedoLog、UndoLog" class="headerlink" title="2、BinLog、RedoLog、UndoLog"></a>2、BinLog、RedoLog、UndoLog</h3><h5 id="BinLog"><a href="#BinLog" class="headerlink" title="BinLog"></a>BinLog</h5><p><code>BinLog</code>是记录所有数据库表结构变更（例如create、alter table）以及表数据修改(insert、update、delete)的二进制日志，主从数据库同步用到的都是BinLog文件。BinLog日志文件有三种模式。</p>
+<p><strong>STATEMENT 模式</strong></p>
+<blockquote>
+<p><code>内容</code>：binlog 只会记录可能引起数据变更的 sql 语句</p>
+<p><code>优势</code>：该模式下，因为没有记录实际的数据，所以日志量和 IO 都消耗很低，性能是最优的</p>
+<p><code>劣势</code>：但有些操作并不是确定的，比如 uuid() 函数会随机产生唯一标识，当依赖 binlog 回放时，该操作生成的数据与原数据必然是不同的，此时可能造成无法预料的后果。</p>
+</blockquote>
+<p><strong>ROW 模式</strong></p>
+<blockquote>
+<p><code>内容</code>：在该模式下，binlog 会<strong>记录每次操作的源数据与修改后的目标数据</strong>，StreamSets就要求该模式。</p>
+<p><code>优势</code>：可以绝对精准的还原，从而保证了数据的安全与可靠，并且复制和数据恢复过程可以是并发进行的</p>
+<p><code>劣势</code>：缺点在于 binlog 体积会非常大，同时，对于修改记录多、字段长度大的操作来说，记录时性能消耗会很严重。阅读的时候也需要特殊指令来进行读取数据。</p>
+</blockquote>
+<p><strong>MIXED 模式</strong></p>
+<blockquote>
+<p><code>内容</code>：是对上述STATEMENT 跟 ROW  两种模式的混合使用。</p>
+<p><code>细节</code>：对于绝大部分操作，都使用 STATEMENT 来进行 binlog 的记录，只有以下操作使用 ROW 来实现：表的存储引擎为 NDB，使用了uuid() 等不确定函数，使用了 insert delay 语句，使用了临时表</p>
+</blockquote>
+<p><img src= "/img/loading.gif" data-src="https://mmbiz.qpic.cn/mmbiz_png/wJvXicD0z2dUQrRBUyxETV2RgzXuPqjscM2Fp9cfschice1hHVoTicZwJAfggMichIjt1rJnhqXSpWviaAR5BeiaaKTg/640" alt="图片"><strong>主从同步流程</strong>：</p>
+<blockquote>
+<p>1、主节点必须启用二进制日志，记录任何修改了数据库数据的事件。</p>
+<p>2、从节点开启一个线程（I/O Thread)把自己扮演成 mysql 的客户端，通过 mysql 协议，请求主节点的二进制日志文件中的事件 。</p>
+<p>3、主节点启动一个线程（dump Thread），检查自己二进制日志中的事件，跟对方请求的位置对比，如果不带请求位置参数，则主节点就会从第一个日志文件中的第一个事件一个一个发送给从节点。</p>
+<p>4、从节点接收到主节点发送过来的数据把它放置到中继日志（Relay log）文件中。并记录该次请求到主节点的具体哪一个二进制日志文件内部的哪一个位置（主节点中的二进制文件会有多个）。</p>
+<p>5、从节点启动另外一个线程（sql Thread ），把 Relay log 中的事件读取出来，并在本地再执行一次。</p>
+</blockquote>
+<p>mysql默认的复制方式是<code>异步</code>的，并且复制的时候是有<code>并行复制能力</code>的。主库把日志发送给从库后不管了，这样会产生一个问题就是假设主库挂了，从库处理失败了，这时候从库升为主库后，<strong>日志就丢失了</strong>。由此产生两个概念。</p>
+<ol>
+<li>全同步复制</li>
+</ol>
+<blockquote>
+<p>主库写入binlog后强制同步日志到从库，<strong>所有的从库都执行完成后才返回给客户端</strong>，但是很显然这个方式的话性能会受到严重影响。</p>
+</blockquote>
+<ol>
+<li>半同步复制</li>
+</ol>
+<blockquote>
+<p>半同步复制的逻辑是这样，从库写入日志成功后返回<code>ACK</code>确认给主库，主库收到至少一个从库的确认就认为写操作完成。</p>
+</blockquote>
+<p>还可以延伸到由于主从配置不一样、主库大事务、从库压力过大、网络震荡等造成<code>主备延迟</code>，如何避免这个问题？主备切换的时候用<code>可靠性优先原则</code>还是<code>可用性优先原则</code>？如何判断主库Crash了？互为主备情况下如何避免主备循环复制？被删库跑路了如何正确恢复？(⊙o⊙)<img src= "/img/loading.gif" data-src="https://mmbiz.qpic.cn/mmbiz_gif/wJvXicD0z2dUQrRBUyxETV2RgzXuPqjscibMIov2IbEqK78yrVZjpMS5GW2NoqXOs5CB0ibVxDT0nzQ3DVUa2QAaA/640" alt="图片"></p>
+<h5 id="RedoLog"><a href="#RedoLog" class="headerlink" title="RedoLog"></a>RedoLog</h5><p>可以先通过下面demo理解：</p>
+<p>饭点记账可以把账单写在<code>账本</code>上也可以写在<code>粉板</code>上。有人赊账或者还账的话，一般有两种做法：</p>
+<blockquote>
+<p>1、直接把账本翻出来，把这次赊的账加上去或者扣除掉。</p>
+<p>2、先在粉板上记下这次的账，等打烊以后再把账本翻出来核算。</p>
+</blockquote>
+<p>生意忙时选后者，因为前者太麻烦了。得在密密麻麻的记录中找到这个人的赊账总额信息，找到之后再拿出算盘计算，最后再将结果写回到账本上。</p>
+<p>同样在MySQL中如果每一次的更新操作都需要写进磁盘，然后磁盘也要找到对应的那条记录，然后再更新，整个过程IO成本、查找成本都很高。而粉板和账本配合的整个过程就是MySQL用到的是Write-Ahead Logging 技术，它的关键点就是<code>先写日志，再写磁盘</code>。此时账本 = BinLog，粉板 = RedoLog。</p>
+<blockquote>
+<p>1、 记录更新时，InnoDB引擎就会先把记录写到RedoLog（粉板）里面，并更新内存。同时，InnoDB引擎会在空闲时将这个操作记录更新到磁盘里面。</p>
+<p>2、 如果更新太多RedoLog处理不了的时候，需先将RedoLog部分数据写到磁盘，然后擦除RedoLog部分数据。RedoLog类似转盘。</p>
+</blockquote>
+<p>RedoLog有<code>write pos</code> 跟<code>checkpoint</code></p>
+<blockquote>
+<p><code>write pos</code> ：是当前记录的位置，一边写一边后移，写到第3号文件末尾后就回到0号文件开头。</p>
+<p><code>check point</code>：是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。</p>
+</blockquote>
+<p>write pos和check point之间的是粉板上还空着的部分，可以用来记录新的操作。如果write pos追上checkpoint，表示粉板满了，这时候不能再执行新的更新，得停下来先擦掉一些记录，把checkpoint推进一下。</p>
+<p>有了redo log，InnoDB就可以保证即使数据库发生异常重启，之前提交的记录都不会丢失，这个能力称为<code>crash-safe</code>。<img src= "/img/loading.gif" data-src="https://mmbiz.qpic.cn/mmbiz_png/wJvXicD0z2dUQrRBUyxETV2RgzXuPqjscgO7ico0mApLjNfetKfiaSRovhW0hzcciav2OEibI4vOBAHEQUwG0K1Dtmw/640" alt="图片"></p>
+<p><code>redolog两阶段提交</code>：为了让binlog跟redolog两份日志之间的逻辑一致。提交流程大致如下：</p>
+<blockquote>
+<p>1 prepare阶段 –&gt;  2 写binlog  –&gt; 3 commit</p>
+</blockquote>
+<ol>
+<li>当在2之前崩溃时，重启恢复后发现没有commit，回滚。备份恢复：没有binlog 。一致</li>
+<li>当在3之前崩溃时，重启恢复发现虽没有commit，但满足prepare和binlog完整，所以重启后会<code>自动</code>commit。备份：有binlog. 一致</li>
+</ol>
+<p><strong>binlog跟redolog区别</strong>：</p>
+<ol>
+<li>redo log是InnoDB引擎特有的；binlog是MySQL的Server层实现的，所有引擎都可以使用。</li>
+<li>redo log是物理日志，记录的是在某个数据页上做了什么修改；binlog是逻辑日志，记录的是这个语句的原始逻辑，比如给ID=2这一行的c字段加1。</li>
+<li>redo log是循环写的，空间固定会用完；binlog是可以追加写入的。追加写是指binlog文件写到一定大小后会切换到下一个，并不会覆盖以前的日志。</li>
+</ol>
+<h5 id="UndoLog"><a href="#UndoLog" class="headerlink" title="UndoLog"></a>UndoLog</h5><p>UndoLog 一般是逻辑日志，主要分为两种：</p>
+<ol>
+<li>insert undo log</li>
+</ol>
+<blockquote>
+<p>代表事务在insert新记录时产生的undo log, 只在事务回滚时需要，并且在事务提交后可以被立即丢弃</p>
+</blockquote>
+<ol>
+<li>update undo log</li>
+</ol>
+<blockquote>
+<p>事务在进行update或delete时产生的undo log; 不仅在事务回滚时需要，在快照读时也需要；所以不能随便删除，只有在快速读或事务回滚不涉及该日志时，对应的日志才会被purge线程统一清除</p>
+</blockquote>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">裸泳的鲸</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://whalezxj.github.io/2020/12/21/mysql%E9%9D%A2%E8%AF%95%E9%A2%98/">https://whalezxj.github.io/2020/12/21/mysql%E9%9D%A2%E8%AF%95%E9%A2%98/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://whalezxj.github.io" target="_blank">裸泳的鲸の博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/springboot/">springboot</a><a class="post-meta__tags" href="/tags/mysql/">mysql</a><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/">面试题</a></div><div class="post_share"><div class="social-share" data-image="/img/cover/bg004.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/01/18/BigDecimal%E7%9B%B8%E5%8A%A0%E7%9A%84%E5%9D%91/"><img class="prev-cover" data-src="/img/cover/bg014.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">BigDecimal相加的坑</div></div></a></div><div class="next-post pull-right"><a href="/2020/12/19/jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/"><img class="next-cover" data-src="/img/cover/kobe_bean_bryant-002.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">jdk动态代理</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/10/21/mysql/" title="MySQL"><img class="relatedPosts_cover" data-src="/img/cover/bg002.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-21</div><div class="relatedPosts_title">MySQL</div></div></a></div><div class="relatedPosts_item"><a href="/2020/11/24/@Scheduled和Quartz定时器/" title="Springboot定时器"><img class="relatedPosts_cover" data-src="/img/cover/bg018.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-11-24</div><div class="relatedPosts_title">Springboot定时器</div></div></a></div><div class="relatedPosts_item"><a href="/2020/12/05/EasyExcel/" title="EasyExcel导出"><img class="relatedPosts_cover" data-src="/img/cover/kobe_bean_bryant-001.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-05</div><div class="relatedPosts_title">EasyExcel导出</div></div></a></div><div class="relatedPosts_item"><a href="/2020/10/28/ShiroDemo/" title="SpringBoot整合Shiro"><img class="relatedPosts_cover" data-src="/img/cover/bg015.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-28</div><div class="relatedPosts_title">SpringBoot整合Shiro</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/12/SwaggerConfig/" title="SpringBoot整合swagger"><img class="relatedPosts_cover" data-src="/img/cover/bg007.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-12</div><div class="relatedPosts_title">SpringBoot整合swagger</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/12/Thymeleaf/" title="SpringBoot整合Thymeleaf"><img class="relatedPosts_cover" data-src="/img/cover/bg014.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-12</div><div class="relatedPosts_title">SpringBoot整合Thymeleaf</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div class="comments-items-1" data-name="Valine"><div class="vcomment" id="vcomment"></div><script>function loadvaline () {  
+  var requestSetting = function (from,set) {
+    var from = from
+    var setting = set.split(',').filter(function(item){
+    return from.indexOf(item) > -1
+    });
+    setting = setting.length == 0 ? from :setting;
+    return setting
+  }
+
+  var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+  var requiredFields = requestSetting(['nick','mail'],'nick,mail')
+
+  function initValine () {
+    window.valine = new Valine({
+      el:'#vcomment',
+      appId: 'uVX1RdW5NvC6zEnfjERU7mAb-gzGzoHsz',
+      appKey: 'DzzpF7cokBfNP107e5OjMKtQ',
+      placeholder: '请留下你的姓名',
+      avatar: 'monsterid',
+      meta: guestInfo,
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: true,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: true,
+      requiredFields: requiredFields
+    });
+  }
+  loadScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || false) {
+  window.addEventListener('load', loadvaline)
+}
+else {
+  function loadOtherComment () {
+    loadvaline()
+  }
+}</script></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 裸泳的鲸</div><div class="footer_custom_text">潮水退去,裸泳的鲸</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="algolia-search"><div class="search-dialog__title" id="algolia-search-title">Algolia</div><div id="algolia-input-panel"><div id="algolia-search-input"></div></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-stats"></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/third-party/click_heart.js"></script><script src="https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {
+  pangu.autoSpacingPage()
+})</script><script src="/js/search/algolia.js"></script><script src="/buffifly/js/VolantisTags.js"></script><script src="/buffifly/js/volantis.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>

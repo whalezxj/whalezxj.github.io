@@ -1,0 +1,435 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpringBoot整合Thymeleaf | 裸泳的鲸の博客</title><meta name="description" content="Thymeleaf1.Thymeleaf介绍 Thymeleaf 与JSP类似，最大的区别在于，JSP在运行之后才能得纯HTML，而 Thymeleaf 在运行之前也是纯html。Thymeleaf跟 Velocity、FreeMarker 等模板引擎大同小异 ，相较与其他的模板引擎，它有如下三个极吸引人的特点：  Thymeleaf 在有网络和无网络的环境下皆可运行。它可以让在浏览器查看页面的静"><meta name="keywords" content="springboot,模板引擎"><meta name="author" content="裸泳的鲸"><meta name="copyright" content="裸泳的鲸"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/touxiang.ico"><link rel="canonical" href="https://whalezxj.github.io/2020/09/12/Thymeleaf/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="SpringBoot整合Thymeleaf"><meta property="og:url" content="https://whalezxj.github.io/2020/09/12/Thymeleaf/"><meta property="og:site_name" content="裸泳的鲸の博客"><meta property="og:description" content="Thymeleaf1.Thymeleaf介绍 Thymeleaf 与JSP类似，最大的区别在于，JSP在运行之后才能得纯HTML，而 Thymeleaf 在运行之前也是纯html。Thymeleaf跟 Velocity、FreeMarker 等模板引擎大同小异 ，相较与其他的模板引擎，它有如下三个极吸引人的特点：  Thymeleaf 在有网络和无网络的环境下皆可运行。它可以让在浏览器查看页面的静"><meta property="og:image" content="https://whalezxj.github.io/img/cover/bg014.jpg"><meta property="article:published_time" content="2020-09-11T16:00:00.000Z"><meta property="article:modified_time" content="2020-12-05T08:56:22.893Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><link rel="prev" title="SpringBoot整合swagger" href="https://whalezxj.github.io/2020/09/12/SwaggerConfig/"><link rel="next" title="jdk8新特性" href="https://whalezxj.github.io/2020/09/03/jdk8%E6%96%B0%E7%89%B9%E6%80%A7/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.10.5/dist/instantsearch.min.css"><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.10.5/dist/instantsearch.min.js" defer></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"UBWSK687I2","apiKey":"d717f84253b93e7df849914ef62d69f9","indexName":"hexosearch","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容:${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容:${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: {"limitDay":500,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: true,
+  copyright: {"languages":{"author":"作者: 裸泳的鲸","link":"链接: ","source":"来源: 裸泳的鲸の博客","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: {"bookmark":{"message_prev":"按","message_next":"键将本页加入书签"},"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#A2B5CD","bgDark":"#121212","position":"top-center"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: true    
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-12-05 16:56:22'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><link rel="stylesheet" href="/buffifly/css/VolantisTags.css"><link rel="stylesheet" href="/buffifly/css/volantis.css"><link rel="stylesheet" href="/buffifly/css/fontAnimation.css"><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/touxiang.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">26</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">25</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">18</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div></div></div><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Thymeleaf"><span class="toc-number">1.</span> <span class="toc-text">Thymeleaf</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Thymeleaf介绍"><span class="toc-number">1.1.</span> <span class="toc-text">1.Thymeleaf介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Thymeleaf的标准表达式语法"><span class="toc-number">1.2.</span> <span class="toc-text">2. Thymeleaf的标准表达式语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1变量表达式"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1变量表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2URL表达式"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2URL表达式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-表达式支持的语法"><span class="toc-number">1.3.</span> <span class="toc-text">3.表达式支持的语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1算术运算"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1算术运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2逻辑运算"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2逻辑运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3条件运算"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3条件运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4文本操作"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4文本操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-使用方法"><span class="toc-number">1.4.</span> <span class="toc-text">4.使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-赋值、字符串拼接"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 赋值、字符串拼接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-条件判断If-Unless"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 条件判断If&#x2F;Unless</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-循环遍历"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 循环遍历</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-Swicth"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.4 Swicth</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-URL相关"><span class="toc-number">1.4.5.</span> <span class="toc-text">4.5 URL相关</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-页面布局"><span class="toc-number">1.5.</span> <span class="toc-text">5. 页面布局</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-内置工具"><span class="toc-number">1.6.</span> <span class="toc-text">6.内置工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Thymeleaf常用标签"><span class="toc-number">1.7.</span> <span class="toc-text">7.Thymeleaf常用标签</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div id="web_bg" data-type="photo"></div><header class="post-bg" id="page-header" style="background-image: url(/img/cover/bg014.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">裸泳的鲸の博客</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">SpringBoot整合Thymeleaf</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="发表于 2020-09-12 00:00:00"><i class="far fa-calendar-alt fa-fw"></i> 发表于 2020-09-12</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="更新于 2020-12-05 16:56:22"><i class="fas fa-history fa-fw"></i> 更新于 2020-12-05</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fas fa-inbox fa-fw post-meta__icon"></i><a class="post-meta__categories" href="/categories/springboot/">springboot</a></span></div><div class="meta-secondline"> <span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta__icon"></i><span>字数总计:</span><span class="word-count">3.5k</span><span class="post-meta__separator">|</span><i class="far fa-clock fa-fw post-meta__icon"></i><span>阅读时长: 15 分钟</span></span></div><div class="meta-thirdline"><span class="post-meta-pv-cv"><span class="post-meta__separator">|</span><i class="far fa-eye fa-fw post-meta__icon"></i><span>阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span><span class="post-meta__separator">|</span><i class="far fa-comments fa-fw post-meta__icon"></i><span>评论数:</span><a href="/2020/09/12/Thymeleaf/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count comment-count" data-xid="/2020/09/12/Thymeleaf/" itemprop="commentCount"></span></a></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Thymeleaf"><a href="#Thymeleaf" class="headerlink" title="Thymeleaf"></a>Thymeleaf</h1><h2 id="1-Thymeleaf介绍"><a href="#1-Thymeleaf介绍" class="headerlink" title="1.Thymeleaf介绍"></a>1.Thymeleaf介绍</h2><ul>
+<li><p>Thymeleaf 与JSP类似，最大的区别在于，JSP在运行之后才能得纯HTML，而 Thymeleaf 在运行之前也是纯html。Thymeleaf跟 Velocity、FreeMarker 等模板引擎大同小异 ，相较与其他的模板引擎，它有如下三个极吸引人的特点：</p>
+</li>
+<li><p>Thymeleaf 在有网络和无网络的环境下皆可运行。它可以让在浏览器查看页面的静态效果，也可以让程序员在服务器查看带数据的动态页面效果。这是由于它支持 html 原型，然后在 html 标签里增加额外的属性来达到模板+数据的展示方式。浏览器解释 html 时会忽略未定义的标签属性，所以 thymeleaf 的模板可以静态地运行；当有数据返回到页面时，Thymeleaf 标签会动态地替换掉静态内容，使页面动态显示。</p>
+</li>
+<li><p>Thymeleaf 开箱即用。它提供标准和spring标准两种方言，可以直接套用模板实现JSTL、 OGNL表达式效果，避免每天套模板改jstl、改标签的困扰。同时开发人员也可以扩展和创建自定义的方言。</p>
+</li>
+<li><p>Thymeleaf 提供spring标准方言和一个与 SpringMVC 完美集成的可选模块，可以快速的实现表单绑定、属性编辑器、国际化等功能。</p>
+</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">p</span> <span class="attr">th:text</span>=<span class="string">"#&#123;hello.world&#125;"</span>&gt;</span>Hello World!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>​        这是一段标准的HTML代码，通过浏览器直接打开它是可以正确解析并且看到页面的静态效果，显示的内容是<code>&lt;/P&gt;</code>标签里的文本<code>Hello World!</code>。标签中的th:text属性用来填充该标签的内容，也就是说在上面的例子中<code>&lt;/P&gt;</code>标签中的<code>Hello World!</code>将会被th:text属性中<code>#{hello.world}</code>的值替换。假如<code>#{hello.world}</code>的值是<code>Hello Thymeleaf!</code>那么网页打开时显示的内容将会变成Hello Thymeleaf!。<br>​        在传统的JSP中，我们需要在<code>&lt;/P&gt;</code>标签中加入<code>${hello.world}</code>才能让浏览器显示数据，每次开发前端页面我们必须部署项目启动服务器之后才能显示数据，从而根据显示的数据进行美化或者修改前端的页面。使用Thymeleaf 模板引擎之后，不需要部署项目，只要在前端设置模板数据用于查看显示效果就可以了，在标签中加入th:text属性之后，项目部署时前端设置的模板数据就会被后端的数据（通常是数据库中的数据）替换，这样开发的时候就可以专注于前端或者专注于后端，大大提高我们的开发效率，如今的是趋势前后端开发分离，使用Thymeleaf 模板引擎能减少团队之间因前后端开发差异产生的问题。</p>
+<h2 id="2-Thymeleaf的标准表达式语法"><a href="#2-Thymeleaf的标准表达式语法" class="headerlink" title="2. Thymeleaf的标准表达式语法"></a>2. Thymeleaf的标准表达式语法</h2><p>Thymeleaf有四种标准表达式语法</p>
+<ol>
+<li>变量表达式</li>
+<li>URL表达式</li>
+<li>选择(星号)表达式</li>
+<li>文字国际化表达式</li>
+</ol>
+<h3 id="2-1变量表达式"><a href="#2-1变量表达式" class="headerlink" title="2.1变量表达式"></a>2.1变量表达式</h3><p>变量表达式即OGNL表达式或Spring EL表达式(在Spring术语中也叫model attributes)。像这种：<code>${user.name}</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>UserName is :  <span class="tag">&lt;<span class="name">span</span> <span class="attr">th:text</span>=<span class="string">"$&#123;user.name&#125;"</span>&gt;</span>xiaoming<span class="tag">&lt;/<span class="name">span</span>&gt;</span> !<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>默认运行结果是：UserName is : xiaoming ! 如果<code>${[user.name]}</code>的值是xiaohong则输出<code>UserName is : xiaohong !</code><br>这种与JSP的方式一样</p>
+<h3 id="2-2URL表达式"><a href="#2-2URL表达式" class="headerlink" title="2.2URL表达式"></a>2.2URL表达式</h3><p>Thymeleaf对于URL的处理是通过语法@{…}来处理，举个简单的例子：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">th:href</span>=<span class="string">"@&#123;http://www.baidu.com&#125;"</span>&gt;</span>Thymeleaf<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Thymeleaf支持绝对路径URL也支持相对路径的URL:<br>相对路径写法：<br>            <code>@{…/thymeleaf/hello(userName=${user.username})}</code></p>
+<p>添加参数：</p>
+<p>​            <code>@{/thymeleaf/hello(userName=${user.username},userPassWord=${user.userpassword})}</code></p>
+<p>URL后面的<code>(userName=${user.username},userPassWord=${user.userpassword})</code>表示将括号内的内容作为参数处理，多个参数用逗号隔开，该语法避免使用字符串拼接，大大提高了可读性                                                                                     如果要对URL进行修改，可以使用 th:href 和 th:src</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 访问的地址是 'http://localhost:8080/thymeleaf/hello?userName=xiaoming)'  --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"hello.html"</span> </span></span><br><span class="line"><span class="tag">   <span class="attr">th:href</span>=<span class="string">"@&#123;http://localhost:8080/thymeleaf/hello(userName=$&#123;user.username&#125;)&#125;"</span>&gt;</span>view<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"hello.html"</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/thymeleaf/hello(userName=$&#123;user.username&#125;)&#125;"</span>&gt;</span>view<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-表达式支持的语法"><a href="#3-表达式支持的语法" class="headerlink" title="3.表达式支持的语法"></a>3.表达式支持的语法</h2><h3 id="3-1算术运算"><a href="#3-1算术运算" class="headerlink" title="3.1算术运算"></a>3.1算术运算</h3><p>表达式支持算数运算，比如：+、-（减号）、*、/、%以及单独的 -（负号）<br>简单举两个例子:</p>
+<table>
+<thead>
+<tr>
+<th>语法</th>
+<th>实例</th>
+<th>运行结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>+</td>
+<td><code>&lt;p th:text=&quot;${Product.price+999}&quot; &gt;&lt;/p&gt;</code></td>
+<td>1000(设Product.price为1)</td>
+</tr>
+<tr>
+<td>-</td>
+<td><code>&lt;p th:text=&quot;${Product.price-999}&quot; &gt;&lt;/p&gt;</code></td>
+<td>1(设Product.price为1000)</td>
+</tr>
+</tbody></table>
+<h3 id="3-2逻辑运算"><a href="#3-2逻辑运算" class="headerlink" title="3.2逻辑运算"></a>3.2逻辑运算</h3><p>逻辑运算符&gt;, &lt;, &lt;=,&gt;=，==,!=,!都可以使用，唯一需要注意的是使用&lt;,&gt;时需要用它的HTML转义符</p>
+<h3 id="3-3条件运算"><a href="#3-3条件运算" class="headerlink" title="3.3条件运算"></a>3.3条件运算</h3><p>If-then: (if) ? (then)</p>
+<p>If-then-else: (if) ? (then) : (else)</p>
+<p>Default: (value) ?: (defaultvalue)</p>
+<h3 id="3-4文本操作"><a href="#3-4文本操作" class="headerlink" title="3.4文本操作"></a>3.4文本操作</h3><p>设${name}的值是123</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&lt;p th:text=&quot;&#39;Hello！ &#39; + ${name} + &#39;!&#39;&quot; &gt;hello world&lt;/p&gt;</code></td>
+<td>Hello ! 123 !</td>
+</tr>
+<tr>
+<td>`&lt;p th:text=”</td>
+<td>Hello！ ${name}!</td>
+</tr>
+</tbody></table>
+<h2 id="4-使用方法"><a href="#4-使用方法" class="headerlink" title="4.使用方法"></a>4.使用方法</h2><h3 id="4-1-赋值、字符串拼接"><a href="#4-1-赋值、字符串拼接" class="headerlink" title="4.1 赋值、字符串拼接"></a>4.1 赋值、字符串拼接</h3><p>赋值用th:text=””属性，字符串拼接参考上面3.4，运用“+”拼接或者直接用“||”都可以做到，推荐使用后者。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">th:text</span>=<span class="string">"'Hello！ ' + $&#123;name&#125; + '!'"</span> &gt;</span>hello world<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">th:text</span>=<span class="string">"|Hello！ $&#123;name&#125;!|"</span> &gt;</span>hello world<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>设${name}的值是123，上面的输出结果都是Hello ! 123 !</p>
+<h3 id="4-2-条件判断If-Unless"><a href="#4-2-条件判断If-Unless" class="headerlink" title="4.2 条件判断If/Unless"></a>4.2 条件判断If/Unless</h3><p>Thymeleaf中使用th:if和th:unless属性进行条件判断，下面的例子中，<code>&lt;a&gt;</code>标签只有在<code>th:if</code>中条件成立时才显示：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/login&#125;"</span> <span class="attr">th:if</span>=<span class="string">"$&#123;session.user != null&#125;"</span>&gt;</span>Login<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>th:unless</code>于<code>th:if</code>恰好相反，只有表达式中的条件不成立，才会显示其内容</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">th:href</span>=<span class="string">"@&#123;/login&#125;"</span> <span class="attr">th:unless</span>=<span class="string">"$&#123;session.user == null&#125;"</span>&gt;</span>Login<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以使用 <code>(if) ? (then) : (else)</code> 这种语法来判断显示的内容,如：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">th:text</span>=<span class="string">"($&#123;hello&#125;!=null) ? '条件成立显示这个':'条件不成立显示这个'"</span> &gt;</span>Hello <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-循环遍历"><a href="#4-3-循环遍历" class="headerlink" title="4.3 循环遍历"></a>4.3 循环遍历</h3><ol>
+<li>直接遍历<br>列表数据是一种非常常见的场景，例如现在有n条记录需要渲染成一个表格<code>&lt;table&gt;</code>，该数据集合必须是可以遍历的，使用<code>th:each</code>标签：</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">table</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">thead</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>id<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>产品名称<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">th</span>&gt;</span>价格<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">thead</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tbody</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span> <span class="attr">th:each</span>=<span class="string">"p: $&#123;ps&#125;"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.id&#125;"</span>&gt;</span>1<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.name&#125;"</span>&gt;</span>name<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.price&#125;"</span>&gt;</span>price<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注：${ps}为一个可遍历的集合</p>
+<ol start="2">
+<li>带状态遍历<br>还可以进行带状态的遍历，只需把遍历条件改成<code>th:each=&quot;p,status: ${ps}</code>，status称作状态变量，属性有：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>状态变量常用属性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>index:当前迭代对象的index（从0开始计算）</td>
+</tr>
+<tr>
+<td>count: 当前迭代对象的index(从1开始计算)</td>
+</tr>
+<tr>
+<td>size:被迭代对象的大小</td>
+</tr>
+<tr>
+<td>current:当前迭代变量</td>
+</tr>
+<tr>
+<td>even/odd:布尔值，当前循环是否是偶数/奇数（从0开始计算）</td>
+</tr>
+<tr>
+<td>first:布尔值，当前循环是否是第一个</td>
+</tr>
+<tr>
+<td>last:布尔值，当前循环是否是最后一个</td>
+</tr>
+</tbody></table>
+<p>比如我需要在遍历的时候输出序号，可以把上面的遍历代码改成：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">tr</span> <span class="attr">th:each</span>=<span class="string">"p,status: $&#123;ps&#125;"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;status.count&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.id&#125;"</span><span class="attr">1</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.name&#125;"</span>&gt;</span>name<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">td</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.price&#125;"</span>&gt;</span>price<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>遍历select</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">size</span>=<span class="string">"3"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">option</span> <span class="attr">th:each</span>=<span class="string">"p:$&#123;ps&#125;"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;p.id&#125;"</span> <span class="attr">th:selected</span>=<span class="string">"$&#123;p.id==p.id&#125;"</span> <span class="attr">th:text</span>=<span class="string">"$&#123;p.name&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>先在<code>select</code>中声明需要显示的数量<code>size</code>为多少<br><code>th:each=&quot;p:${ps}&quot;</code>是遍历的集合<br><code>th:value=&quot;${p.id}&quot;</code>令每一项的值是<code>${p.id}</code><br><code>th:selected=&quot;${p.id==p.id}&quot;</code> 表示被选中的项<br><code>th:text=&quot;${p.name}</code> 表示显示的文本信息是<code>${p.name}</code></p>
+<p>​    4.遍历单选框</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">"product"</span> <span class="attr">type</span>=<span class="string">"radio"</span> <span class="attr">th:each</span>=<span class="string">"p:$&#123;ps&#125;"</span> <span class="attr">th:value</span>=<span class="string">"$&#123;p.id&#125;"</span>  <span class="attr">th:checked</span>=<span class="string">"$&#123;p.id==p.id&#125;"</span>     <span class="attr">th:text</span>=<span class="string">"$&#123;p.name&#125;"</span>  /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>说明参考上面</p>
+<h3 id="4-4-Swicth"><a href="#4-4-Swicth" class="headerlink" title="4.4 Swicth"></a>4.4 Swicth</h3><p>默认属性default可以用*表示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;div th:<span class="keyword">switch</span>=<span class="string">"$&#123;user.role&#125;"</span>&gt;</span><br><span class="line">  &lt;p th:<span class="keyword">case</span>=<span class="string">"'admin'"</span>&gt;User is an administrator&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">  &lt;p th:case="#&#123;roles.manager&#125;"&gt;User is a manager&lt;/</span>p&gt;</span><br><span class="line">  &lt;p th:<span class="keyword">case</span>=<span class="string">"*"</span>&gt;User is some other thing&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>div&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-5-URL相关"><a href="#4-5-URL相关" class="headerlink" title="4.5 URL相关"></a>4.5 URL相关</h3><p>设置背景</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;div th:style&#x3D;&quot;&#39;background:url(&#39; + @&#123;&#x2F;&lt;path-to-image&gt;&#125; + &#39;);&#39;&quot;&gt;&lt;&#x2F;div&gt;</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+
+<p>根据属性值改变背景</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> &lt;div th:style&#x3D;&quot;&#39;background:url(&#39; + @&#123;($&#123;collect.webLogo&#125;&#x3D;&#x3D;&#39;&#39; ? &#39;img&#x2F;favicon.png&#39; : $&#123;collect.webLogo&#125;)&#125; + &#39;)&#39;&quot; &gt;&lt;&#x2F;div&gt;</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-页面布局"><a href="#5-页面布局" class="headerlink" title="5. 页面布局"></a>5. 页面布局</h2><p>实际情况使用布局通常比较复杂，这里只是简单介绍一下布局的使用方式，具体运用要根据实际需要编写不同的布局。<br>先编写一个用于布局的layout.html文件，内容大概如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">&lt;header th:fragment=<span class="string">"header"</span>&gt;</span><br><span class="line">    head  要显示的模板头部</span><br><span class="line">&lt;<span class="regexp">/header&gt;</span></span><br><span class="line"><span class="regexp">  &lt;div th:include="::content"&gt;</span></span><br><span class="line"><span class="regexp">    这是正文 </span></span><br><span class="line"><span class="regexp">&lt;/</span>div&gt;</span><br><span class="line">&lt;footer th:fragment=<span class="string">"footer"</span>&gt;</span><br><span class="line">   foot  要显示的模板尾部</span><br><span class="line">&lt;<span class="regexp">/footer&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>body&gt;</span><br><span class="line"><span class="number">1234567891011</span></span><br></pre></td></tr></table></figure>
+
+<p>正文html文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=<span class="string">"en"</span> xmlns:th=<span class="string">"http://www.thymeleaf.org"</span> th:replace=<span class="string">"layout"</span>&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=<span class="string">"UTF-8"</span>&gt;</span><br><span class="line">    &lt;title&gt;hello&lt;<span class="regexp">/title&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div th:fragment=<span class="string">"content"</span>&gt;</span><br><span class="line">   这才是正文</span><br><span class="line">&lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>body&gt;</span><br><span class="line">&lt;<span class="regexp">/html&gt;</span></span><br><span class="line"><span class="regexp">123456789101112</span></span><br></pre></td></tr></table></figure>
+
+<p>运行的结果大概这样：<br><img src= "/img/loading.gif" data-src="https://img-blog.csdnimg.cn/20190403171429704.png" alt="在这里插入图片描述"><br>需要注意的正文html文件中的第二行th:replace=”layout”是前面编写的layout.html文件<br>正文中th:fragment=“content”的值要和布局文件中的th:include=”::content”相对应</p>
+<h2 id="6-内置工具"><a href="#6-内置工具" class="headerlink" title="6.内置工具"></a>6.内置工具</h2><p>为了模板更加易用，Thymeleaf还提供了一系列Utility对象（内置于Context中），可以通过#直接访问：<br>Execution Info<br>Messages<br>URIs/URLs<br>Conversions<br>Dates<br>Calendars<br>Numbers<br>Strings<br>Objects<br>Booleans<br>Arrays<br>Lists<br>Sets<br>Maps<br>Aggregates<br>IDs</p>
+<p>先说说Dates：<br>在后端实例化了一个Date对象<code>Date now = new Date();</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">        直接输出日期 $&#123;now&#125;:</span><br><span class="line">        &lt;p th:text=<span class="string">"$&#123;now&#125;"</span>&gt;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">        默认格式化 $&#123;#dates.format(now)&#125;:</span></span><br><span class="line"><span class="regexp">        &lt;p th:text="$&#123;#dates.format(now)&#125;"&gt;&lt;/</span>p&gt;</span><br><span class="line">        自定义格式化 $&#123;#dates.format(now,'yyyy-MM-dd HH:mm:ss')&#125;:</span><br><span class="line">        &lt;p th:text=<span class="string">"$&#123;#dates.format(now,'yyyy-MM-dd HH:mm:ss')&#125;"</span>&gt;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">        直接获取当前时间：</span></span><br><span class="line"><span class="regexp">        &lt;p th:text="$&#123;#dates.createNow()&#125;"&gt;&lt;/</span>p&gt;</span><br><span class="line">        直接获取当天时间：</span><br><span class="line">        &lt;p th:text=<span class="string">"$&#123;#dates.createToday()&#125;"</span>&gt;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">12345678910</span></span><br></pre></td></tr></table></figure>
+
+<p>显示结果：<br><img src= "/img/loading.gif" data-src="https://img-blog.csdnimg.cn/20190403154728929.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0VrbmFpag==,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>Strings:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Check whether a String is empty (or null). Performs a trim() operation before check</span></span><br><span class="line"><span class="comment"> * Also works with arrays, lists or sets</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$&#123;#strings.isEmpty(name)&#125;</span><br><span class="line">$&#123;#strings.arrayIsEmpty(nameArr)&#125;</span><br><span class="line">$&#123;#strings.listIsEmpty(nameList)&#125;</span><br><span class="line">$&#123;#strings.setIsEmpty(nameSet)&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Check whether a String starts or ends with a fragment</span></span><br><span class="line"><span class="comment"> * Also works with arrays, lists or sets</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$&#123;#strings.startsWith(name,'Don')&#125;                  // also array*, list* and set*</span><br><span class="line">$&#123;#strings.endsWith(name,endingFragment)&#125;           // also array*, list* and set*</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Compute length</span></span><br><span class="line"><span class="comment"> * Also works with arrays, lists or sets</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$&#123;#strings.length(str)&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Null-safe comparison and concatenation</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$&#123;#strings.equals(str)&#125;</span><br><span class="line">$&#123;#strings.equalsIgnoreCase(str)&#125;</span><br><span class="line">$&#123;#strings.concat(str)&#125;</span><br><span class="line">$&#123;#strings.concatReplaceNulls(str)&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Random</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$&#123;#strings.randomAlphanumeric(count)&#125;</span><br><span class="line"><span class="number">12345678910111213141516171819202122232425262728293031323334</span></span><br></pre></td></tr></table></figure>
+
+<p>就不一一举例了，有需要的朋友按照具体内置对象百度了解一下吧。</p>
+<h2 id="7-Thymeleaf常用标签"><a href="#7-Thymeleaf常用标签" class="headerlink" title="7.Thymeleaf常用标签"></a>7.Thymeleaf常用标签</h2><table>
+<thead>
+<tr>
+<th>关键字</th>
+<th>操作</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>th:id</td>
+<td>替换id</td>
+<td><code>&lt;input th:id=&quot;&#39;xxx&#39; + ${collect.id}&quot;/&gt;</code></td>
+</tr>
+<tr>
+<td>th:text</td>
+<td>文本替换</td>
+<td><code>&lt;p th:text=&quot;${collect.description}&quot;&gt;description&lt;/p&gt;</code></td>
+</tr>
+<tr>
+<td>th:utext</td>
+<td>支持html的文本替换</td>
+<td><code>&lt;p th:utext=&quot;${htmlcontent}&quot;&gt;conten&lt;/p&gt;</code></td>
+</tr>
+<tr>
+<td>th:object</td>
+<td>替换对象</td>
+<td><code>&lt;div th:object=&quot;${session.user}&quot;&gt;</code></td>
+</tr>
+<tr>
+<td>th:value</td>
+<td>属性赋值</td>
+<td><code>&lt;input th:value=&quot;${user.name}&quot; /&gt;</code></td>
+</tr>
+<tr>
+<td>th:with</td>
+<td>变量赋值运算</td>
+<td><code>&lt;div th:with=&quot;isEven=${prodStat.count}%2==0&quot;&gt;&lt;/div&gt;</code></td>
+</tr>
+<tr>
+<td>th:style</td>
+<td>设置样式</td>
+<td><code>th:style=&quot;&#39;display:&#39; + @{(${sitrue} ? &#39;none&#39; : &#39;inline-block&#39;)} + &#39;&#39;&quot;</code></td>
+</tr>
+<tr>
+<td>th:onclick</td>
+<td>点击事件</td>
+<td><code>th:&quot;&#39;getCollect()&#39;&quot;</code></td>
+</tr>
+<tr>
+<td>th:each</td>
+<td>属性赋值</td>
+<td><code>tr th:each=&quot;user,userStat:${users}&quot;</code></td>
+</tr>
+<tr>
+<td>th:if</td>
+<td>判断条件</td>
+<td><code>&lt;a th:if=&quot;${userId == collect.userId}&quot; &gt;</code></td>
+</tr>
+<tr>
+<td>th:unless</td>
+<td>和th:if判断相反</td>
+<td><code>&lt;a th:href=&quot;@{/login}&quot; th:unless=${session.user != null}&gt;Login&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td>th:href</td>
+<td>链接地址</td>
+<td><code>&lt;a th:href=&quot;@{/login}&quot; th:unless=${session.user != null}&gt;Login&lt;/a&gt;</code></td>
+</tr>
+<tr>
+<td>th:switch</td>
+<td>多路选择 配合th:case 使用</td>
+<td><code>&lt;div th:switch=&quot;${user.role}&quot;&gt;</code></td>
+</tr>
+<tr>
+<td>th:case</td>
+<td>th:switch的一个分支</td>
+<td><code>&lt;p th:case=&quot;&#39;admin&#39;&quot;&gt;User is an administrator&lt;/p&gt;</code></td>
+</tr>
+<tr>
+<td>th:fragment</td>
+<td>布局标签，定义一个代码片段，方便其它地方引用</td>
+<td><code>&lt;div th:fragment=&quot;alert&quot;&gt;</code></td>
+</tr>
+<tr>
+<td>th:include</td>
+<td>布局标签，替换内容到引入的文件</td>
+<td><code>&lt;head th:include=&quot;layout :: htmlhead&quot; th:with=&quot;title=&#39;xx&#39;&quot;&gt;&lt;/head&gt;</code></td>
+</tr>
+<tr>
+<td>th:replace</td>
+<td>布局标签，替换整个标签到引入的文件</td>
+<td><code>&lt;div th:replace=&quot;fragments/header :: title&quot;&gt;&lt;/div&gt;</code></td>
+</tr>
+<tr>
+<td>th:selected</td>
+<td>selected选择框 选中</td>
+<td><code>th:selected=&quot;(${xxx.id} == ${configObj.dd})&quot;</code></td>
+</tr>
+<tr>
+<td>th:src</td>
+<td>图片类地址引入</td>
+<td><code>&lt;img class=&quot;img-responsive&quot; alt=&quot;App Logo&quot; th:src=&quot;@{/img/logo.png}&quot; /&gt;</code></td>
+</tr>
+<tr>
+<td>th:inline</td>
+<td>定义js脚本可以使用变量</td>
+<td><code>&lt;script type=&quot;text/javascript&quot; th:inline=&quot;javascript&quot;&gt;</code></td>
+</tr>
+<tr>
+<td>th:action</td>
+<td>表单提交的地址</td>
+<td><code>&lt;form action=&quot;subscribe.html&quot; th:action=&quot;@{/subscribe}&quot;&gt;</code></td>
+</tr>
+<tr>
+<td>th:remove</td>
+<td>删除某个属性</td>
+<td><code>&lt;tr th:remove=&quot;all&quot;&gt; 1.all:删除包含标签和所有的孩子。’2.body:不包含标记删除,但删除其所有的孩子。3.tag:包含标记的删除,但不删除它的孩子。4.all-but-first:删除所有包含标签的孩子,除了第一个。5.none:什么也不做。这个值是有用的动态评估。</code></td>
+</tr>
+<tr>
+<td>th:attr</td>
+<td>设置标签属性，多个属性可以用逗号分隔</td>
+<td><code>比如 th:attr=&quot;src=@{/image/aa.jpg},title=#{logo}&quot;，此标签不太优雅，一般用的比较少。</code></td>
+</tr>
+</tbody></table>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">裸泳的鲸</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://whalezxj.github.io/2020/09/12/Thymeleaf/">https://whalezxj.github.io/2020/09/12/Thymeleaf/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://whalezxj.github.io" target="_blank">裸泳的鲸の博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/springboot/">springboot</a><a class="post-meta__tags" href="/tags/%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8E/">模板引擎</a></div><div class="post_share"><div class="social-share" data-image="/img/cover/bg004.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/09/12/SwaggerConfig/"><img class="prev-cover" data-src="/img/cover/bg007.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">SpringBoot整合swagger</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/03/jdk8%E6%96%B0%E7%89%B9%E6%80%A7/"><img class="next-cover" data-src="/img/cover/bg003.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">jdk8新特性</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2020/11/24/@Scheduled和Quartz定时器/" title="Springboot定时器"><img class="relatedPosts_cover" data-src="/img/cover/bg018.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-11-24</div><div class="relatedPosts_title">Springboot定时器</div></div></a></div><div class="relatedPosts_item"><a href="/2020/12/05/EasyExcel/" title="EasyExcel导出"><img class="relatedPosts_cover" data-src="/img/cover/kobe_bean_bryant-001.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-05</div><div class="relatedPosts_title">EasyExcel导出</div></div></a></div><div class="relatedPosts_item"><a href="/2020/10/28/ShiroDemo/" title="SpringBoot整合Shiro"><img class="relatedPosts_cover" data-src="/img/cover/bg015.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-28</div><div class="relatedPosts_title">SpringBoot整合Shiro</div></div></a></div><div class="relatedPosts_item"><a href="/2020/09/12/SwaggerConfig/" title="SpringBoot整合swagger"><img class="relatedPosts_cover" data-src="/img/cover/bg007.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-12</div><div class="relatedPosts_title">SpringBoot整合swagger</div></div></a></div><div class="relatedPosts_item"><a href="/2021/01/22/XXL-JOB的使用/" title="XXL-JOB分布式任务调度"><img class="relatedPosts_cover" data-src="/img/cover/bg006.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-22</div><div class="relatedPosts_title">XXL-JOB分布式任务调度</div></div></a></div><div class="relatedPosts_item"><a href="/2020/11/13/jxls-springboot实现导出Excel报表/" title="Jxls导出"><img class="relatedPosts_cover" data-src="/img/cover/bg005.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2020-11-13</div><div class="relatedPosts_title">Jxls导出</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headling"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div class="comments-items-1" data-name="Valine"><div class="vcomment" id="vcomment"></div><script>function loadvaline () {  
+  var requestSetting = function (from,set) {
+    var from = from
+    var setting = set.split(',').filter(function(item){
+    return from.indexOf(item) > -1
+    });
+    setting = setting.length == 0 ? from :setting;
+    return setting
+  }
+
+  var guestInfo = requestSetting(['nick','mail','link'],'nick,mail,link')
+  var requiredFields = requestSetting(['nick','mail'],'nick,mail')
+
+  function initValine () {
+    window.valine = new Valine({
+      el:'#vcomment',
+      appId: 'uVX1RdW5NvC6zEnfjERU7mAb-gzGzoHsz',
+      appKey: 'DzzpF7cokBfNP107e5OjMKtQ',
+      placeholder: '请留下你的姓名',
+      avatar: 'monsterid',
+      meta: guestInfo,
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: true,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: true,
+      requiredFields: requiredFields
+    });
+  }
+  loadScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || false) {
+  window.addEventListener('load', loadvaline)
+}
+else {
+  function loadOtherComment () {
+    loadvaline()
+  }
+}</script></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By 裸泳的鲸</div><div class="footer_custom_text">潮水退去,裸泳的鲸</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="algolia-search"><div class="search-dialog__title" id="algolia-search-title">Algolia</div><div id="algolia-input-panel"><div id="algolia-search-input"></div></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-stats"></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div class="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/third-party/activate-power-mode.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/third-party/click_heart.js"></script><script src="https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js"></script><script>document.addEventListener('DOMContentLoaded', function() {
+  pangu.autoSpacingPage()
+})</script><script src="/js/search/algolia.js"></script><script src="/buffifly/js/VolantisTags.js"></script><script src="/buffifly/js/volantis.js"></script><script>var endLoading = function () {
+  document.body.style.overflow = 'auto';
+  document.getElementById('loading-box').classList.add("loaded")
+}
+window.addEventListener('load',endLoading)</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
